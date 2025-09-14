@@ -3,7 +3,7 @@
 1. Clone the project
 
 ```
-git clone https://github.com/singhsanket143/Express-Typescript-Starter-Project.git <ProjectName>
+git clone https://github.com/anujpal247/Messaging_slack_backend.git <ProjectName>
 ```
 
 2. Move in to the folder structure

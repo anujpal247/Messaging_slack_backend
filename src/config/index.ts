@@ -3,6 +3,9 @@ import dotenv from 'dotenv';
 
 type ServerConfig = {
     PORT: number
+    NODE_ENV: string
+    DEV_DB_URI: string
+    PROD_DB_URI: string
 }
 
 function loadEnv() {
@@ -13,5 +16,8 @@ function loadEnv() {
 loadEnv();
 
 export const serverConfig: ServerConfig = {
-    PORT: Number(process.env.PORT) || 3001
+    PORT: Number(process.env.PORT) || 3001,
+    NODE_ENV: process.env.NODE_ENV || "development",
+    DEV_DB_URI: process.env.DEV_DB_URI || "",
+    PROD_DB_URI: process.env.PROD_DB_URI || ""
 };
