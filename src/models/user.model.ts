@@ -1,4 +1,5 @@
 import mongoose, { Document } from "mongoose";
+import bcrypt from "bcryptjs";
 
 export interface IUser extends Document {
   username: string;
@@ -40,6 +41,9 @@ const userSchema = new mongoose.Schema<IUser>({
 
 userSchema.pre<IUser>("save", function (next) {
   const user = this;
+  const SALT = bcrypt.genSaltSync(9);
+  const hashedPassword = bcrypt.hashSync(user.password, SALT);
+  user.password = hashedPassword;
   user.avatar = `https://robohash.org/${user.username}`;
   next();
 });

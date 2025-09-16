@@ -1,7 +1,8 @@
 import { IUser, User } from "../models/user.model"
 
-interface IUserRepository {
+export interface IUserRepository {
   getUserByEmail(email: string): Promise<IUser | null>
+  getUserById(id: string): Promise<IUser | null>
   getUserByUsername(username: string): Promise<IUser | null>
   createUser(updateUserData : Partial<IUser>): Promise<IUser>
   updateUser(id : string, user : Partial<IUser>): Promise<IUser | null>
@@ -15,17 +16,23 @@ export class UserRepository implements IUserRepository {
   }
 
   async getUserByEmail(email: string): Promise<IUser | null> {
-    const user = User.findOne({ email: email });
+    const user = await User.findOne({ email: email });
+    return user
+  }
+
+  async getUserById(id: string): Promise<IUser | null> {
+    const user = await User.findById(id);
     return user
   }
   async getUserByUsername(username: string): Promise<IUser | null> {
-    const user = User.findOne({ username: username }).select("-password");
+    const user =  await User.findOne({ username: username }).select("-password");
     return user
   }
   async createUser(userData : Partial<IUser>): Promise<IUser> {
     const user = new User(userData);
     await user.save();
-    return user
+    user.password = "";
+    return user;
   }
   async updateUser(id : string, updateUserData : Partial<IUser>): Promise<IUser | null> {
     const user = await User.findByIdAndUpdate(id, updateUserData, { new: true });
@@ -37,7 +44,7 @@ export class UserRepository implements IUserRepository {
     return false
   }
   async getAllUsers(): Promise<IUser[]> {
-    const users = await User.find();
+    const users = await User.find().sort({ createdAt: -1 }); // Sort by createdAt in descending order
     return users
   }
 }
