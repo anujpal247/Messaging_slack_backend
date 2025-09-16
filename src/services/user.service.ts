@@ -1,7 +1,10 @@
+import { serverConfig } from "../config";
 import { IUser } from "../models/user.model";
 import { IUserRepository } from "../repositories/user.repository";
 import { BadRequestError, InternalServerError, NotFoundError } from "../utils/errors/app.error";
-import { CreateUserDTO, UpdateUserDTO } from "../validators/user.validator";
+import { CreateUserDTO, LoginUserDTO, UpdateUserDTO } from "../validators/user.validator";
+import  jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 
 export interface IUserService {
   getAllUsers(): Promise<IUser[]>;
@@ -9,6 +12,7 @@ export interface IUserService {
   getUserByEmail(email: string): Promise<IUser>;
   getUserByUsername(username: string): Promise<IUser>;
   createUser(data: CreateUserDTO): Promise<IUser>;
+  loginUser(data: LoginUserDTO): Promise<string>;
   updateUser(id: string, data: UpdateUserDTO): Promise<IUser>;
   deleteUser(id: string): Promise<boolean>;
 }
@@ -44,6 +48,27 @@ export class UserService implements IUserService {
       throw new NotFoundError(`User not found with email ${email}`);
     }
     return user
+  }
+
+  async loginUser(data: LoginUserDTO): Promise<string> {
+
+    const user = await this.userRepo.getUserByEmail(data.email);
+    if (!user) {
+      throw new NotFoundError(`User not found with email ${data.email}`);
+    }
+
+    const isPasswordMatch = await bcrypt.compare(data.password, user.password);
+
+    if (!isPasswordMatch) {
+      throw new BadRequestError("Invalid password");
+    }
+
+    // generate token
+    const token = jwt.sign({ id: user._id }, serverConfig.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    return token;
   }
 
   async getUserByUsername(username: string): Promise<IUser> {

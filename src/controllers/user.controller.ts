@@ -13,5 +13,21 @@ export const UserController = {
       success: true,
       data: user
     });
+  },
+
+  async loginUser(req: Request, res: Response) {
+    const token = await userService.loginUser(req.body);
+    // set token in httpOnly cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none"
+    });
+
+    res.status(200).json({
+      message: "User logged in successfully",
+      success: true,
+      data: token
+    });
   }
 };
