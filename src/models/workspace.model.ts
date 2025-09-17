@@ -6,6 +6,7 @@ export interface IWorkspace extends Document  {
   owner: Schema.Types.ObjectId;
   members: Schema.Types.ObjectId[];
   channels: Schema.Types.ObjectId[];
+  joinCode: string;
 }
 
 export const workspaceSchema = new Schema<IWorkspace>({
@@ -37,6 +38,12 @@ export const workspaceSchema = new Schema<IWorkspace>({
       },
     }
   ],
+  joinCode: {
+    type: String,
+    required: [true, "joinCode is required"],
+    unique: [true, "joinCode must be unique"],
+    trim: true,
+  },
   channels: [
     {
       type: Schema.Types.ObjectId,
